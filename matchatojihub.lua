@@ -1,8 +1,8 @@
 --[[
-    JJS - Toji (Hired Killer) Rupture auto-timing
+    JJS - Toji (Hired Killer) Matcha Script Hub
     Version 1.0.0
-    For Matcha (external Roblox LuaU).
 
+    Rupture Timings:              
     Tap 3 to start Rupture. The script waits until the grab phase starts,
     then presses 3 a second time at the right moment.
 
@@ -18,39 +18,28 @@
 ]]
 
 local VERSION = "1.0.0"
-
-----------------------------------------------------------------
 -- CONFIG
-----------------------------------------------------------------
 -- Seconds to wait after the grab phase starts before the second press.
 -- Tuned at ~13 ms ping on a stationary dummy. Run calibration (F5) to find yours.
 local DELAY = 0.325
-
 -- true = print extra timing information to the console
 local DEBUG = false
-
--- Key codes (https://learn.microsoft.com/windows/win32/inputdev/virtual-key-codes)
 local KEY_ABILITY = 0x33     -- "3"
 local KEY_DELAY_DOWN = 0x71  -- F2
 local KEY_DELAY_UP = 0x72    -- F3
 local KEY_STOP = 0x73        -- F4
 local KEY_CALIBRATE = 0x74   -- F5
-
--- Moves that must exist in your moveset for the script to activate
 local REQUIRED_MOVES = { "Rupture", "ISOH" }
 
 -- Calibration sweep (F5): tries each delay a few times and reports what worked
 local CAL = { from = 0.00, to = 0.60, step = 0.05, tries = 2 }
-
-----------------------------------------------------------------
 -- INTERNALS (no need to edit below this line)
-----------------------------------------------------------------
-local STEP = 0.01        -- how much F2 / F3 change the delay
-local GIVE_UP = 3.0      -- stop waiting for the grab phase after this many seconds
-local MIN_WAIT = 1.3     -- the grab phase can't start before this; guards against leftovers from the last cast
-local SPIN = 0.25        -- busy-wait the final stretch of a wait for accuracy
-local HOLD = 0.03        -- how long the second press is held
-local WARN_AFTER = 3     -- warn after this many casts in a row with no grab phase
+local STEP = 0.01        
+local GIVE_UP = 3.0    
+local MIN_WAIT = 1.3     
+local SPIN = 0.25        
+local HOLD = 0.03        
+local WARN_AFTER = 3   
 
 local clock = os.clock or tick
 local LocalPlayer = game:GetService("Players").LocalPlayer
@@ -63,7 +52,6 @@ local function dbg(msg)
     if DEBUG then print("[JJS Toji][debug] " .. msg) end
 end
 
--- Only one copy may run: loading again replaces the old copy
 local G = _G or {}
 local GUARD_KEY = "__JJS_TOJI_RUPTURE_RUN"
 if G[GUARD_KEY] then say("replacing the previously loaded copy.") end
@@ -72,8 +60,6 @@ local RUN_ID = G[GUARD_KEY]
 local stopped = false
 local function alive() return G[GUARD_KEY] == RUN_ID and not stopped end
 
--- Optional overrides, set BEFORE the loadstring line:
---   _G.TojiRuptureConfig = { DELAY = 0.30, DEBUG = true, CALIBRATE = true }
 local START_CALIBRATING = false
 local userCfg = G.TojiRuptureConfig
 if type(userCfg) == "table" then
@@ -86,9 +72,6 @@ if type(userCfg) == "table" then
     START_CALIBRATING = (userCfg.CALIBRATE == true)
 end
 
-----------------------------------------------------------------
--- Game lookups
-----------------------------------------------------------------
 local function getChar()
     local chars = game.Workspace:FindFirstChild("Characters")
     return chars and chars:FindFirstChild(LocalPlayer.Name)
@@ -116,7 +99,7 @@ end
 local function findInfo(char)
     if cacheValid() then return infoCache end
     infoCache = nil
-    if clock() - infoFailAt < 1 then return nil end  -- don't rescan every frame
+    if clock() - infoFailAt < 1 then return nil end  
     for _, c in ipairs(char:GetChildren()) do
         if c.Name == "Info" then infoCache = c return c end
     end
@@ -127,7 +110,6 @@ local function findInfo(char)
     return nil
 end
 
--- "absent" | "false" | "true"
 local function rcState()
     local char = getChar()
     local info = char and findInfo(char)
@@ -139,16 +121,12 @@ local function rcState()
     return v
 end
 
--- Wait until an absolute clock() time; yields, then spins for the last stretch
 local function waitUntil(t)
     while clock() < t - SPIN do task.wait() end
     local n = 0
     while clock() < t and n < 2000000 do n = n + 1 end
 end
 
-----------------------------------------------------------------
--- Calibration
-----------------------------------------------------------------
 local cal = { active = false, index = 0, try = 0, results = {} }
 
 local function calDelay()
@@ -221,9 +199,6 @@ local function startCalibration()
     say(string.format("calibration started: about %d casts. Tap 3 once per cast on a training dummy. Press F5 again to cancel.", steps * CAL.tries))
 end
 
-----------------------------------------------------------------
--- The cast
-----------------------------------------------------------------
 local noFreshStreak = 0
 
 local function runCast(t0)
@@ -257,7 +232,6 @@ local function runCast(t0)
 
     waitUntil(freshAt + delay)
 
-    -- the second press needs a fresh key-down, so make sure 3 is released
     local w = clock()
     while iskeypressed(KEY_ABILITY) and clock() - w < 0.5 do task.wait() end
 
@@ -266,7 +240,7 @@ local function runCast(t0)
     waitUntil(clock() + HOLD)
     keyrelease(KEY_ABILITY)
 
-    -- Did it land? RuptureCheck flips to true when the second press is accepted.
+    -- RuptureCheck flips to true when the second press is accepted.
     local last, ok = rcState(), false
     local t2 = clock()
     while clock() - t2 < 1.5 do
@@ -285,9 +259,7 @@ local function runCast(t0)
     if cal.active then recordCal(delay, ok) end
 end
 
-----------------------------------------------------------------
 -- Main loop
-----------------------------------------------------------------
 local keyState = {}
 local function pressed(key)  -- true once, on the frame the key goes down
     local down = iskeypressed(key)
