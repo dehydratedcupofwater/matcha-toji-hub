@@ -1,5 +1,5 @@
 --[[
-    JJS - Toji (Hired Killer) Matcha Script Hub
+    JJS - Toji (Hired Hunter) Matcha Script Hub
     Version 1.0.0
 
     Rupture Timings:              
@@ -77,7 +77,7 @@ local function getChar()
     return chars and chars:FindFirstChild(LocalPlayer.Name)
 end
 
-local function isUsingHiredKiller()
+local function isUsingHiredHunter()
     local char = getChar()
     local ms = char and char:FindFirstChild("Moveset")
     if not ms then return false end
@@ -166,7 +166,7 @@ local function finishCalibration()
         local lo, hi = cal.results[bestS].delay, cal.results[bestE].delay
         DELAY = (lo + hi) / 2
         say(string.format("working window: %.3f to %.3f.", lo, hi))
-        say(string.format("Using DELAY = %.3f for this session. To keep it, put _G.TojiRuptureConfig = { DELAY = %.3f } before the loadstring line (or set DELAY at the top if you run a local copy).", DELAY, DELAY))
+        say(string.format("Using DELAY = %.3f for this session. To keep it, put _G.TojiRuptureConfig = { DELAY = %.3f } before the loadstring line (or set DELAY at the top if you run a local copy).", DELAY))
     else
         say("no delay worked every time. Make sure you were casting Rupture on a target and tapping 3 once per cast, then try again.")
     end
@@ -224,7 +224,7 @@ local function runCast(t0)
         dbg("no fresh RuptureCheck, not pressing")
         if noFreshStreak >= WARN_AFTER then
             noFreshStreak = 0
-            say("Rupture didn't reach the grab phase " .. WARN_AFTER .. " casts in a row. It may be on cooldown, or the lunge may be missing. If neither is the case, the game may have updated and this script needs a fix.")
+            say("Rupture didn't reach the grab phase " .. WARN_AFTER .. " casts in a row. It may be on cooldown, or the lunge may be missing. If neither is the case, the game may have updated and this script needs to be adjusted.")
         end
         return
     end
@@ -277,8 +277,8 @@ local function measure(arg)
 end
 
 say(string.format("v%s loaded. Tap 3 to cast Rupture. F2/F3 delay, F4 stop, F5 calibrate. Delay is %.3f.", VERSION, DELAY))
-if not isUsingHiredKiller() then
-    say("Toji (Hired Killer) not detected right now. The script activates when you play him.")
+if not isUsingHiredHunter() then
+    say("Toji (Hired Hunter) not detected right now. The script activates when you play him.")
 end
 
 if START_CALIBRATING then startCalibration() end
@@ -311,7 +311,7 @@ task.spawn(function()
         end
 
         local t0 = clock()
-        if pressed(KEY_ABILITY) and not busy and isUsingHiredKiller() then
+        if pressed(KEY_ABILITY) and not busy and isUsingHiredHunter() then
             busy = true
             task.spawn(function()
                 local ok, err = pcall(runCast, t0)
@@ -322,3 +322,4 @@ task.spawn(function()
         end
     end
 end)
+
