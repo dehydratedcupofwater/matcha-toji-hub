@@ -1,6 +1,6 @@
 --[[
     JJS - Toji (Hired Hunter) Matcha Script Hub
-    Version 1.0.0
+    Version 1.1.0
 
     Rupture Timings:              
     Tap 3 to start Rupture. The script waits until the grab phase starts,
@@ -17,7 +17,7 @@
     Nothing below the CONFIG section should need changes.
 ]]
 
-local VERSION = "1.0.0"
+local VERSION = "1.1.0"
 -- CONFIG
 -- Seconds to wait after the grab phase starts before the second press.
 -- Tuned at ~13 ms ping on a stationary dummy. Run calibration (F5) to find yours.
